@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+package opio.proto_entry.examples.ping_pong;
+
+// Message direction with respect to server.
+enum ProtoEntryIODirection {
+  PROTO_ENTRY_IO_INCOMING = 0; // Server <<< Client
+  PROTO_ENTRY_IO_OUTGOING = 1; // Server >>> Client
+  PROTO_ENTRY_IO_INCOMING_OUTGOING = 2; // Server <=> Client
+}
+
+extend google.protobuf.MessageOptions {
+   ProtoEntryIODirection proto_entry_io_direction = 110001;
+   string                proto_entry_enum_id = 110002;
+}
+
+// ===================================================================
+
+enum MessageType
+{
+    PING_REQUEST = 0;
+    PONG_REPLY = 1;
+    MULTI_SEND_MSG = 2;
+}
+
+message PingRequest
+{
+    option (proto_entry_io_direction) = PROTO_ENTRY_IO_INCOMING;
+    option (proto_entry_enum_id) = "PING_REQUEST";
+
+    uint32 req_id  = 1;
+    string payload = 2;
+}
+
+message PongReply
+{
+    option (proto_entry_io_direction) = PROTO_ENTRY_IO_OUTGOING;
+    option (proto_entry_enum_id) = "PONG_REPLY";
+
+    uint32 req_id  = 1;
+    string payload = 2;
+}
+
+message MultiSendMsg
+{
+    option (proto_entry_io_direction) = PROTO_ENTRY_IO_OUTGOING;
+    option (proto_entry_enum_id) = "MULTI_SEND_MSG";
+
+    uint32 seq_num  = 1;
+    string message = 2;
+}

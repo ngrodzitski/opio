@@ -1,0 +1,7 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# TODO: Add you deps here.
+find_dependency(asio)
+find_dependency(json-dto)

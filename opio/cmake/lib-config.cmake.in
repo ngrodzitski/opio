@@ -1,0 +1,6 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# TODO: Add you deps here.
+find_dependency(fmt)

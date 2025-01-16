@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+package opio.proto_entry.utest;
+
+// Message direction with respect to server.
+enum ProtoEntryIODirection {
+  PROTO_ENTRY_IO_INCOMING = 0; // Server <<< Client
+  PROTO_ENTRY_IO_OUTGOING = 1; // Server >>> Client
+  PROTO_ENTRY_IO_INCOMING_OUTGOING = 2; // Server <=> Client
+}
+
+extend google.protobuf.MessageOptions {
+    ProtoEntryIODirection proto_entry_io_direction = 110001;
+    string                proto_entry_enum_id = 110002;
+}
+
+// ===================================================================
+
+enum MessageType
+{
+    BOTH_WAY = 0;
+
+    XXX_REQUEST = 1;
+    YYY_REQUEST = 2;
+    ZZZ_REQUEST = 3;
+
+
+    XXX_REPLY = 4;
+    YYY_REPLY = 5;
+    ZZZ_REPLY = 6;
+}
+
+message XxxRequest
+{
+    option (proto_entry_io_direction) = PROTO_ENTRY_IO_INCOMING;
+    option (proto_entry_enum_id) = "XXX_REQUEST";
+
+    uint32 req_id   = 1;
+    uint32 aaa      = 2;
+    uint32 bbb      = 3;
+    uint32 ccc      = 4;
+
+    repeated string strings  = 5;
+}
+
+message YyyRequest
+{
+    option (proto_entry_io_direction) = PROTO_ENTRY_IO_INCOMING;
+    option (proto_entry_enum_id) = "YYY_REQUEST";
+
+    uint32 req_id = 1;
+}
+
+message ZzzRequest
+{
+    option (proto_entry_io_direction) = PROTO_ENTRY_IO_INCOMING;
+    option (proto_entry_enum_id) = "ZZZ_REQUEST";
+
+    uint32 req_id   = 1;
+    repeated uint64 numbers  = 2;
+    repeated double dnumbers = 3;
+}
+
+message XxxReply
+{
+    option (proto_entry_io_direction) = PROTO_ENTRY_IO_OUTGOING;
+    option (proto_entry_enum_id) = "XXX_REPLY";
+
+    uint32 req_id = 1;
+    string error  = 2;
+}
+
+message YyyReply
+{
+    option (proto_entry_io_direction) = PROTO_ENTRY_IO_OUTGOING;
+    option (proto_entry_enum_id) = "YYY_REPLY";
+
+    uint32 req_id  = 1;
+    repeated string strings = 2;
+    string error   = 3;
+
+}
+
+message ZzzReply
+{
+    option (proto_entry_io_direction) = PROTO_ENTRY_IO_OUTGOING;
+    option (proto_entry_enum_id) = "ZZZ_REPLY";
+
+    uint32 req_id      = 1;
+    bool flag          = 2;
+}
+
+message BothWayMessage
+{
+    option (proto_entry_io_direction) = PROTO_ENTRY_IO_INCOMING_OUTGOING;
+    option (proto_entry_enum_id) = "BOTH_WAY";
+
+    string some_string = 1;
+}

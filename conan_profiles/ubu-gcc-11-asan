@@ -1,0 +1,27 @@
+include(ubu-gcc-11)
+[settings]
+build_type=RelWithDebInfo
+
+# m4/*:tools.build:cflags=[]
+
+# m4/*:build_type=Release
+# m4/*:build_type=Release
+
+# flex/*:tools.build:exelinkflags=[]
+# flex/*:tools.build:cflags=[]
+# libpcap/*:tools.build:cflags=[]
+#
+# flex/*:tools.build:cxxflags=[]
+# libpcap/*:tools.build:cxxflags=[]
+#
+#
+# In Conan 2 the following would be enough to force sanitizer flags be acounted for calculating
+# package id of the dependencies, which means conan wouldn't treat prebuilt packages as suitable one
+# and will have to build it locally (or it will match the right ones in conan cache).
+[conf]
+tools.build:cxxflags=["-fsanitize=address", "-fsanitize-address-use-after-scope", "-fno-omit-frame-pointer"]
+tools.build:cflags=["-fsanitize=address", "-fsanitize-address-use-after-scope", "-fno-omit-frame-pointer"]
+tools.build:exelinkflags=["-fsanitize=address", "-static-libasan"]
+tools.build:sharedlinkflags=["-fsanitize=address", "-static-libasan"]
+tools.info.package_id:confs=["tools.build:cxxflags", "tools.build:cflags", "tools.build:exelinkflags", "tools.build:sharedlinkflags"]
+

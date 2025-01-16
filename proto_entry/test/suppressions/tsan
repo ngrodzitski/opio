@@ -1,0 +1,9 @@
+# Mutex ordering in that routine is valid as it never goes in parallel
+# for a given cooperation and one of the mutexes in the scenario is exclusevly
+# owned by cooperation object.
+#
+# SUMMARY: ThreadSanitizer: lock-order-inversion (potential deadlock)
+# (exe_name+0x451416)
+# in pthread_mutex_lock
+deadlock:so_5::impl::coop_impl_t::do_add_child
+deadlock:so_5::coop_t::add_child

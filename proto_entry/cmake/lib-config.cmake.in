@@ -1,0 +1,7 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# TODO: Add you deps here.
+find_dependency(protobuf)
+find_dependency(json-dto)
