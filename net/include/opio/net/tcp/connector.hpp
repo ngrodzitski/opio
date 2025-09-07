@@ -36,7 +36,7 @@ class connector_t : public std::enable_shared_from_this< connector_t< Logger > >
 {
 public:
     connector_t( asio_ns::any_io_executor executor,
-                 asio_ns::ip::tcp::resolver::query query,
+                 tcp_resolver_query_t query,
                  const socket_options_cfg_t & socket_options_cfg,
                  Logger logger,
                  on_connection_cb_t on_connection_cb )
@@ -51,7 +51,7 @@ public:
     }
 
     connector_t( asio_ns::any_io_executor executor,
-                 asio_ns::ip::tcp::resolver::query query,
+                 tcp_resolver_query_t query,
                  Logger logger,
                  on_connection_cb_t on_connection_cb )
         : connector_t{ std::move( executor ),
@@ -65,7 +65,8 @@ public:
 
     void connect()
     {
-        m_resolver.async_resolve( m_query,
+        m_resolver.async_resolve( m_query.host_name(),
+                                  m_query.service_name(),
                                   [ self = this->shared_from_this() ](
                                       const auto & ec, auto resolve_res ) {
                                       self->handle_resolve(
@@ -77,7 +78,7 @@ public:
      * @brief Get this connector resolution query used by resolver
      *        to find an endpoint.
      */
-    [[nodiscard]] const asio_ns::ip::tcp::resolver::query & query() const noexcept
+    [[nodiscard]] const tcp_resolver_query_t & query() const noexcept
     {
         return m_query;
     }
@@ -180,7 +181,7 @@ private:
         }
     }
 
-    asio_ns::ip::tcp::resolver::query m_query;
+    tcp_resolver_query_t m_query;
     asio_ns::ip::tcp::resolver m_resolver;
     asio_ns::ip::tcp::socket m_socket;
 
@@ -198,7 +199,7 @@ private:
  */
 template < typename Logger >
 void async_connect( asio_ns::any_io_executor executor,
-                    asio_ns::ip::tcp::resolver::query query,
+                    tcp_resolver_query_t query,
                     const socket_options_cfg_t & socket_options_cfg,
                     Logger logger,
                     on_connection_cb_t on_connection_cb )
@@ -221,7 +222,7 @@ void async_connect( asio_ns::any_io_executor executor,
  */
 template < typename Logger >
 void async_connect( asio_ns::any_io_executor executor,
-                    asio_ns::ip::tcp::resolver::query query,
+                    tcp_resolver_query_t query,
                     Logger logger,
                     on_connection_cb_t on_connection_cb )
 {
@@ -244,9 +245,9 @@ void async_connect( asio_ns::any_io_executor executor,
                     on_connection_cb_t on_connection_cb )
 {
     async_connect( std::move( executor ),
-                   asio_ns::ip::tcp::resolver::query{ asio_ns::ip::tcp::v4(),
-                                                      std::string( host ),
-                                                      std::to_string( port ) },
+                   tcp_resolver_query_t{ asio_ns::ip::tcp::v4(),
+                                         std::string( host ),
+                                         std::to_string( port ) },
                    socket_options_cfg,
                    std::move( logger ),
                    std::move( on_connection_cb ) );

@@ -484,8 +484,7 @@ protected:
 
     std::uint16_t port{};
 
-    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::address::from_string(
-                                       "127.0.0.1" ),
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
                                    port };
 
     asio_ns::ip::tcp::acceptor acceptor{ ioctx, ep };
@@ -575,7 +574,7 @@ TEST_F( OPIO_NET_CONNECTION_TEST_NAME( OpioIpcTcpPairOfConnections ),
             cb_happened = true;
             ASSERT_EQ( update_socket_options_cb_result::success, res );
 
-            ioctx.post( [ & ] { ioctx.stop(); } );
+            asio_ns::post( ioctx, [ & ] { ioctx.stop(); } );
         } );
 
     ioctx.run_for( std::chrono::milliseconds( 1 ) );
@@ -597,7 +596,7 @@ TEST_F( OPIO_NET_CONNECTION_TEST_NAME( OpioIpcTcpPairOfConnections ),
             cb_happened = true;
             ASSERT_EQ( update_socket_options_cb_result::success, res );
 
-            ioctx.post( [ & ] { ioctx.stop(); } );
+            asio_ns::post( ioctx, [ & ] { ioctx.stop(); } );
         } );
 
     ioctx.run_for( std::chrono::milliseconds( 1 ) );
@@ -615,11 +614,11 @@ TEST_F( OPIO_NET_CONNECTION_TEST_NAME( OpioIpcTcpPairOfConnections ),
 
     bool cb_happened = false;
 
-    client_conn->update_socket_options( std::move( socket_options_cfg ),
-                                        [ & ]( auto /*res*/ ) {
-                                            cb_happened = true;
-                                            ioctx.post( [ & ] { ioctx.stop(); } );
-                                        } );
+    client_conn->update_socket_options(
+        std::move( socket_options_cfg ), [ & ]( auto /*res*/ ) {
+            cb_happened = true;
+            asio_ns::post( ioctx, [ & ] { ioctx.stop(); } );
+        } );
 
     ioctx.run_for( std::chrono::milliseconds( 1 ) );
     ASSERT_TRUE( cb_happened );

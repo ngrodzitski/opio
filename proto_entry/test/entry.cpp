@@ -84,9 +84,8 @@ TEST_P( OpioProtoEntryConnectionCreateAndCloseFixture, NoTraffic )
 
     asio_ns::io_context ioctx( 1 );
     constexpr std::uint16_t port = 40001;
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), port
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   port };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -184,9 +183,8 @@ TEST_P( OpioProtoEntryConnectionCreateAndCloseFixture,
 
     asio_ns::io_context ioctx( 1 );
     constexpr std::uint16_t port = 40003;
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), port
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   port };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -289,9 +287,8 @@ TEST_P( OpioProtoEntryConnectionHBFixture, NoResponseOnHeartbeat )
     const auto started_at = std::chrono::steady_clock::now();
 
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), 40001
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   40001 };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -386,9 +383,8 @@ TEST_P( OpioProtoEntryConnectionHBFixture, HasResponseOnHeartbeat )
     const auto started_at = std::chrono::steady_clock::now();
 
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), 40001
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   40001 };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -489,9 +485,8 @@ TEST( OpioProtoEntryConnection, HandleHeartbeatRequest )
     const auto started_at = std::chrono::steady_clock::now();
 
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), 40001
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   40001 };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -575,9 +570,8 @@ TEST( OpioProtoEntryConnection, HandleHeartbeatRequest )
 TEST( OpioProtoEntryExtendedHeader, IgnoreExtensionPart )
 {
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), 40001
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   40001 };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -678,9 +672,8 @@ class OpioProtoEntryBadPackagesFixture : public ::testing::TestWithParam< int >
 TEST_P( OpioProtoEntryBadPackagesFixture, BadPackageAndDisconnect )
 {
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), 40001
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   40001 };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -873,9 +866,8 @@ TEST_P( OpioProtoEntryMessageTrafficLocalToRemoteFixture, Message )  // NOLINT
     const auto started_at = std::chrono::steady_clock::now();
 
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), 40001
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   40001 };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -1030,9 +1022,8 @@ TEST_P( OpioProtoEntryMessageTrafficRemoteToLocalFixture, Message )  // NOLINT
     bool is_delimeted_sends      = GetParam().second == "BufDelimeted";
 
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), 40001
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   40001 };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -1311,9 +1302,8 @@ INSTANTIATE_TEST_SUITE_P(
 TEST( OpioProtoEntryGeneratedCode, EntrySharedFromThis )  // NOLINT
 {
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), 40001
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   40001 };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -1369,9 +1359,8 @@ TEST( OpioProtoEntryGeneratedCode, EntrySharedFromThis )  // NOLINT
 TEST( OpioProtoEntry, ScheduleSendRawBufs )  // NOLINT
 {
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), 40001
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   40001 };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -1454,9 +1443,8 @@ TEST( OpioProtoEntry, ScheduleSendRawBufs )  // NOLINT
 TEST( OpioProtoEntry, ScheduleSendRawBufsWhenClosed )  // NOLINT
 {
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), 40001
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   40001 };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -1684,9 +1672,8 @@ TEST( OpioProtoEntry, HandleHeartBeatWhenDisconnected )  // NOLINT
     const auto started_at = std::chrono::steady_clock::now();
 
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), 40001
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   40001 };
 
     asio_ns::ip::tcp::socket client_socket{ ioctx };
     StrictMock< message_consumer_mock_t > message_consumer;
@@ -1727,7 +1714,7 @@ TEST( OpioProtoEntry, HandleHeartBeatWhenDisconnected )  // NOLINT
             opio::net::simple_buffer_t::make_from( { 'H', 'e', 'l', 'l', 'o' } ) );
     }
 
-    ioctx.post( [ & ] {
+    asio_ns::post( ioctx, [ & ] {
         const auto ping_req_header =
             pkg_header_t::make( pkg_content_heartbeat_request );
 

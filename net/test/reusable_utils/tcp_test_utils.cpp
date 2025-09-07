@@ -17,7 +17,7 @@ std::uint16_t connect_pair( opio::net::asio_ns::io_context & ioctx,
         {
             const auto port = make_random_port_value();
             opio::net::asio_ns::ip::tcp::endpoint ep{
-                opio::net::asio_ns::ip::address::from_string( "127.0.0.1" ), port
+                opio::net::asio_ns::ip::make_address( "127.0.0.1" ), port
             };
             opio::net::asio_ns::ip::tcp::acceptor acceptor{ ioctx, ep };
 
@@ -38,7 +38,7 @@ std::uint16_t connect_pair( opio::net::asio_ns::io_context & ioctx,
             std::this_thread::sleep_for( std::chrono::milliseconds( 1 ) );
 #endif  // !defined( OPIO_NET_ASIO_WINDOWS )
 
-            ioctx.reset();
+            ioctx.restart();
 
             // Return port on success.
             return port;

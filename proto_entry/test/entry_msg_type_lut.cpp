@@ -76,9 +76,7 @@ TEST( OpioProtoEntryMetaProgrammingHelpers, LambdaOverIncoming )
         std::make_integer_sequence< std::size_t,
                                     utest::msg_types_count_incoming >{} );
 
-    EXPECT_EQ( s,
-               "BothWayMessage, RepeatedFieldRequest, XxxRequest, YyyRequest, "
-               "ZzzRequest, " );
+    EXPECT_EQ( s, "BothWayMessage, XxxRequest, YyyRequest, ZzzRequest, " );
 }
 
 }  // anonymous namespace

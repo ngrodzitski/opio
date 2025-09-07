@@ -42,6 +42,30 @@ struct socket_options_cfg_t
 };
 
 //
+// tcp_resolver_query_t
+//
+
+#if OPIO_ASIO_VERSION < 103300  // Asio < 1.33.0
+
+using tcp_resolver_query_t = asio_ns::ip::tcp::resolver::query;
+
+#else
+/**
+ * @brief A substitute for `asio::ip::tcp::resolver::query`
+ *        that was removed in later versions.
+ */
+struct tcp_resolver_query_t
+{
+    net::asio_ns::ip::tcp protocol{ net::asio_ns::ip::tcp::v4() };
+    std::string host;
+    std::string port;
+
+    std::string host_name() const { return host; }
+    std::string service_name() const { return port; }
+};
+#endif
+
+//
 //  tcp_endpoint_cfg_t
 //
 
@@ -60,7 +84,7 @@ struct tcp_endpoint_cfg_t
     std::uint16_t port{};
     socket_options_cfg_t socket_options{};
 
-    asio_ns::ip::tcp::resolver::query make_query() const
+    tcp_resolver_query_t make_query() const
     {
         std::string target_host = host.empty() ? "127.0.0.1" : host;
         return { protocol, target_host, std::to_string( port ) };

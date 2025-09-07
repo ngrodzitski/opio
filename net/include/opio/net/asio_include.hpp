@@ -65,13 +65,19 @@ inline const auto & system_category()
 //! An alias for base class of error category entity.
 using error_category_base_t = asio_ns::error_category;
 
-#    if defined( BOOST_ASIO_WINDOWS )
-#        define OPIO_NET_ASIO_WINDOWS BOOST_ASIO_WINDOWS
-#    endif  // defined(BOOST_ASIO_WINDOWS)
+#    if defined( ASIO_WINDOWS )
+#        define OPIO_NET_ASIO_WINDOWS ASIO_WINDOWS
+#    endif  // defined(ASIO_WINDOWS)
 
-#    if defined( BOOST_ASIO_MSVC )
-#        define OPIO_NET_ASIO_MSVC BOOST_ASIO_MSVC
-#    endif  // defined(BOOST_ASIO_MSVC)
+#    if defined( ASIO_MSVC )
+#        define OPIO_NET_ASIO_MSVC ASIO_MSVC
+#    endif  // defined(ASIO_MSVC)
+
+#    if defined( ASIO_VERSION )
+#        define OPIO_ASIO_VERSION ASIO_VERSION
+#    else
+#        error "ASIO version macro not defined"
+#    endif
 
 // =============================================================================
 #else  // => #if !defined( OPIO_USE_BOOST_ASIO )
@@ -118,13 +124,19 @@ inline const auto & system_category()
 //! An alias for base class of error category entity.
 using error_category_base_t = ::boost::system::error_category;
 
-#    if defined( ASIO_WINDOWS )
-#        define OPIO_NET_ASIO_WINDOWS ASIO_WINDOWS
-#    endif  // defined(ASIO_WINDOWS)
+#    if defined( BOOST_ASIO_WINDOWS )
+#        define OPIO_NET_ASIO_WINDOWS BOOST_ASIO_WINDOWS
+#    endif  // defined(BOOST_ASIO_WINDOWS)
 
-#    if defined( ASIO_MSVC )
-#        define OPIO_NET_ASIO_MSVC ASIO_MSVC
-#    endif  // defined(ASIO_MSVC)
+#    if defined( BOOST_ASIO_MSVC )
+#        define OPIO_NET_ASIO_MSVC BOOST_ASIO_MSVC
+#    endif  // defined(BOOST_ASIO_MSVC)
+
+#    if defined( BOOST_ASIO_VERSION )
+#        define OPIO_ASIO_VERSION BOOST_ASIO_VERSION
+#    else
+#        error "ASIO version macro not defined"
+#    endif
 
 // =============================================================================
 #endif

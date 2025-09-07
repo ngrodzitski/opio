@@ -179,7 +179,7 @@ private:
 
                 m_acceptor.bind( m_endpoint );
 
-                m_acceptor.listen( asio_ns::socket_base::max_connections );
+                m_acceptor.listen( asio_ns::socket_base::max_listen_connections );
 
                 accept_next();
 

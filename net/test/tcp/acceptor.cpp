@@ -21,9 +21,8 @@ using namespace ::opio::test_utils;  // NOLINT
 TEST( OpioNetTcp, AcceptorOpenClose )  // NOLINT
 {
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), make_random_port_value()
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   make_random_port_value() };
 
     auto accept_happened           = 0;
     bool acceptor_opened_cb_called = false;
@@ -54,9 +53,8 @@ TEST( OpioNetTcp, AcceptorOpenClose )  // NOLINT
 TEST( OpioNetTcp, AcceptorOpenCloseExceptionOnOpen1 )  // NOLINT
 {
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), make_random_port_value()
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   make_random_port_value() };
 
     auto acceptor = make_acceptor( ioctx.get_executor(),
                                    ep,
@@ -85,9 +83,8 @@ TEST( OpioNetTcp, AcceptorOpenCloseExceptionOnOpen1 )  // NOLINT
 TEST( OpioNetTcp, AcceptorOpenCloseExceptionOnOpen2 )  // NOLINT
 {
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), make_random_port_value()
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   make_random_port_value() };
 
     auto acceptor = make_acceptor( ioctx.get_executor(),
                                    ep,
@@ -114,9 +111,8 @@ TEST( OpioNetTcp, AcceptorOpenCloseExceptionOnOpen2 )  // NOLINT
 TEST( OpioNetTcp, AcceptorOpenCloseExceptionOnClose1 )  // NOLINT
 {
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), make_random_port_value()
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   make_random_port_value() };
 
     auto acceptor = make_acceptor( ioctx.get_executor(),
                                    ep,
@@ -145,9 +141,8 @@ TEST( OpioNetTcp, AcceptorOpenCloseExceptionOnClose1 )  // NOLINT
 TEST( OpioNetTcp, AcceptorOpenCloseExceptionOnClose2 )  // NOLINT
 {
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), make_random_port_value()
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   make_random_port_value() };
 
     auto acceptor = make_acceptor( ioctx.get_executor(),
                                    ep,
@@ -176,9 +171,8 @@ TEST( OpioNetTcp, AcceptorOpenCloseExceptionOnClose2 )  // NOLINT
 TEST( OpioNetTcp, AcceptorOpenDuplicate )  // NOLINT
 {
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), make_random_port_value()
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   make_random_port_value() };
 
     auto accept_happened             = 0;
     bool acceptor_opened_cb_called   = false;
@@ -215,9 +209,8 @@ TEST( OpioNetTcp, AcceptorOpenDuplicate )  // NOLINT
 TEST( OpioNetTcp, AcceptorCloseDuplicate )  // NOLINT
 {
     asio_ns::io_context ioctx( 1 );
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), make_random_port_value()
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   make_random_port_value() };
 
     auto accept_happened             = 0;
     bool acceptor_opened_cb_called   = false;
@@ -274,9 +267,9 @@ TEST( OpioNetTcp, AcceptorAccept1 )  // NOLINT
     ioctx.poll();
 
     async_connect( ioctx.get_executor(),
-                   asio_ns::ip::tcp::resolver::query{ asio_ns::ip::tcp::v4(),
-                                                      "localhost",
-                                                      std::to_string( port ) },
+                   tcp_resolver_query_t{ asio_ns::ip::tcp::v4(),
+                                         "localhost",
+                                         std::to_string( port ) },
                    make_test_logger( "connector" ),
                    [ & ]( const auto & ec, auto socket ) {
                        ++connect_happened;
@@ -318,9 +311,9 @@ TEST( OpioNetTcp, AcceptorAccept10 )  // NOLINT
     for( auto i = 0; i < 10; ++i )
     {
         async_connect( ioctx.get_executor(),
-                       asio_ns::ip::tcp::resolver::query{ asio_ns::ip::tcp::v4(),
-                                                          "localhost",
-                                                          std::to_string( port ) },
+                       tcp_resolver_query_t{ asio_ns::ip::tcp::v4(),
+                                             "localhost",
+                                             std::to_string( port ) },
                        make_test_logger( "connector" ),
                        [ & ]( const auto & ec, auto socket ) {
                            ++connect_happened;

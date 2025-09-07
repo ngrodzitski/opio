@@ -105,7 +105,7 @@ protected:
             asio_ns::executor_work_guard< noop_strand_t > work{
                 ioctx.get_executor()
             };
-            ioctx.reset();
+            ioctx.restart();
             ioctx.run();
             logger.info( OPIO_SRC_LOCATION, "finished" );
         } };

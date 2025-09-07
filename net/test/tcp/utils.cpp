@@ -21,9 +21,8 @@ void make_socket_and_run_test( const socket_options_cfg_t & cfg,
 {
     asio_ns::io_context ioctx( 1 );
     const auto port = make_random_port_value();
-    asio_ns::ip::tcp::endpoint ep{
-        asio_ns::ip::address::from_string( "127.0.0.1" ), port
-    };
+    asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
+                                   port };
     auto acceptor = make_acceptor( ioctx.get_executor(),
                                    ep,
                                    cfg,
@@ -34,9 +33,9 @@ void make_socket_and_run_test( const socket_options_cfg_t & cfg,
     ioctx.poll();
 
     async_connect( ioctx.get_executor(),
-                   asio_ns::ip::tcp::resolver::query{ asio_ns::ip::tcp::v4(),
-                                                      "localhost",
-                                                      std::to_string( port ) },
+                   tcp_resolver_query_t{ asio_ns::ip::tcp::v4(),
+                                         "localhost",
+                                         std::to_string( port ) },
                    make_test_logger( "connector" ),
                    [ & ]( [[maybe_unused]] const auto & ec,
                           [[maybe_unused]] auto soc ) { acceptor->close(); } );
