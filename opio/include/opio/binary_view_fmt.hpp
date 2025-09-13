@@ -27,6 +27,11 @@ struct binary_view_fmt_t
                   static_cast< cbinary_span_t::size_type >( size ) }
     {
     }
+
+    binary_view_fmt_t( const binary_view_fmt_t & ) = default;
+    binary_view_fmt_t( binary_view_fmt_t && )      = default;
+    binary_view_fmt_t & operator=( const binary_view_fmt_t & ) = default;
+    binary_view_fmt_t & operator=( binary_view_fmt_t && ) = default;
 };
 
 static_assert( std::is_trivially_copyable_v< binary_view_fmt_t > );
@@ -90,7 +95,7 @@ template <>
 struct formatter< ::opio::binary_view_fmt_t >
 {
     template < class Parse_Context >
-    constexpr auto parse( Parse_Context & ctx )
+    constexpr auto parse( Parse_Context & ctx ) const
     {
         auto it  = std::begin( ctx );
         auto end = std::end( ctx );
@@ -99,7 +104,7 @@ struct formatter< ::opio::binary_view_fmt_t >
     }
 
     template < class Format_Context >
-    auto format( ::opio::binary_view_fmt_t bv, Format_Context & ctx )
+    auto format( ::opio::binary_view_fmt_t bv, Format_Context & ctx ) const
     {
         // clang-format off
         // In essense the following code produces the output of

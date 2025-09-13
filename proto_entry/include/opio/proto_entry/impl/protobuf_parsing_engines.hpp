@@ -129,7 +129,7 @@ private:
         std::make_unique< google::protobuf::Arena >( make_arena_options() );
 
     Message * m_message =
-        google::protobuf::Arena::CreateMessage< Message >( m_arena.get() );
+        google::protobuf::Arena::Create< Message >( m_arena.get() );
 };
 
 //

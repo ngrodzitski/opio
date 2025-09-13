@@ -94,12 +94,12 @@ class OpioOpioConan(ConanFile):
 
     def requirements(self):
         self.requires(self._detect_asio_ref())
-        self.requires("fmt/10.2.1")
-        self.requires("protobuf/3.21.12")
-        self.requires("expected-lite/0.8.0")
+        self.requires("fmt/11.2.0")
+        self.requires("protobuf/6.30.1")
+        self.requires("expected-lite/0.9.0")
 
         self.requires("json_dto/0.3.1")
-        self.requires("logr/0.7.0")
+        self.requires("logr/0.8.0")
         self.requires("rapidjson/cci.20230929", override=True)
 
     def configure(self):
@@ -107,8 +107,8 @@ class OpioOpioConan(ConanFile):
 
     def build_requirements(self):
         if not self._is_package_only():
-            self.requires("cli11/2.3.2")
-            self.test_requires("gtest/1.14.0")
+            self.requires("cli11/2.5.0")
+            self.test_requires("gtest/1.17.0")
 
     def config_options(self):
         if self.settings.os == "Windows":

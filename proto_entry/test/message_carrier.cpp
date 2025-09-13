@@ -85,7 +85,7 @@ TEST( OpioProtoEntryMessageCarrier, WithArena )  // NOLINT
     auto arena = std::make_unique< google::protobuf::Arena >();
 
     auto * msg =
-        google::protobuf::Arena::CreateMessage< proto::XxxRequest >( arena.get() );
+        google::protobuf::Arena::Create< proto::XxxRequest >( arena.get() );
 
     msg->set_req_id( 42 );
     msg->set_aaa( 100 );
@@ -126,7 +126,7 @@ TEST( OpioProtoEntryMessageCarrier, WithArenaWithAttachedBuffer )  // NOLINT
     auto arena = std::make_unique< google::protobuf::Arena >();
 
     auto * msg =
-        google::protobuf::Arena::CreateMessage< proto::XxxRequest >( arena.get() );
+        google::protobuf::Arena::Create< proto::XxxRequest >( arena.get() );
 
     msg->set_req_id( 42 );
     msg->set_aaa( 100 );

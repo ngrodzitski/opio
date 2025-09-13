@@ -574,7 +574,8 @@ struct formatter< opio::net::buffer_fmt_integrator_t >
     }
 
     template < class Format_Context >
-    auto format( opio::net::buffer_fmt_integrator_t buf, Format_Context & ctx )
+    auto format( opio::net::buffer_fmt_integrator_t buf,
+                 Format_Context & ctx ) const
     {
         // clang-format off
         // In essense the following code produces the output of

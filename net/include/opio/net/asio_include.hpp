@@ -195,7 +195,7 @@ template <>
 struct formatter< opio::net::ec_fmt_integrator_t >
 {
     template < class Parse_Context >
-    constexpr auto parse( Parse_Context & ctx )
+    constexpr auto parse( Parse_Context & ctx ) const
     {
         auto it  = std::begin( ctx );
         auto end = std::end( ctx );
@@ -220,7 +220,7 @@ template <>
 struct formatter< opio::net::asio_ns::ip::tcp::endpoint >
 {
     template < class Parse_Context >
-    constexpr auto parse( Parse_Context & ctx )
+    constexpr auto parse( Parse_Context & ctx ) const
     {
         auto it  = std::begin( ctx );
         auto end = std::end( ctx );

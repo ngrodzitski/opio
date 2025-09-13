@@ -1897,7 +1897,7 @@ struct formatter< opio::proto_entry::entry_shutdown_reason >
 {
     using shutdown_reason = opio::proto_entry::entry_shutdown_reason;
     template < class Parse_Context >
-    constexpr auto parse( Parse_Context & ctx )
+    constexpr auto parse( Parse_Context & ctx ) const
     {
         auto it  = std::begin( ctx );
         auto end = std::end( ctx );
@@ -1906,7 +1906,7 @@ struct formatter< opio::proto_entry::entry_shutdown_reason >
     }
 
     template < class Format_Context >
-    auto format( shutdown_reason reason, Format_Context & ctx )
+    auto format( shutdown_reason reason, Format_Context & ctx ) const
     {
         switch( reason )
         {

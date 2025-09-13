@@ -128,7 +128,7 @@ template <>
 struct formatter< opio::net::tcp::socket_options_cfg_t >
 {
     template < class Parse_Context >
-    constexpr auto parse( Parse_Context & ctx )
+    constexpr auto parse( Parse_Context & ctx ) const
     {
         auto it  = std::begin( ctx );
         auto end = std::end( ctx );
@@ -138,7 +138,7 @@ struct formatter< opio::net::tcp::socket_options_cfg_t >
 
     template < class Format_Context >
     auto format( const opio::net::tcp::socket_options_cfg_t & options_cfg,
-                 Format_Context & ctx )
+                 Format_Context & ctx ) const
     {
         if( options_cfg.is_empty() )
         {
