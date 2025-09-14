@@ -36,3 +36,5 @@ _*
 *.pyc
 build
 CMakeUserPresets.json
+
+OpioCodeCoverage*

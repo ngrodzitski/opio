@@ -2,11 +2,49 @@
 
 Yet another Overengineered Protobuf IO (OPIO).
 
+## What is it?
+
+The purpose of the `opio` library is to provide means to implement
+a communication (client-/server- roles) protocol via tcp using
+protobuf as message-serialization framework.
+
+From the user perspective `opio` gives the following:
+
+* Routines to start a server or establish a client connection.
+
+* To send a message, one calls a member function of an object of a specific type
+  representing an existing connection between this application and some other application.
+
+* To receive the message from a remote application, one provides
+  a handler function that gets a message as its parameter and expects this handler
+  to be invoked each time a new message comes.
+
+# High-level idea
+
+Library utilizes [ASIO](https://think-async.com/Asio/)
+([Boost::asio](https://www.boost.org/doc/libs/1_85_0/doc/html/boost_asio.html))
+as a low-level layer which is responsible for dealing with OS API
+to handle socket programming is provided by the .
+
+On top of it *opio* provide two layers:
+
+* `opio::net`: a protocol-agnostic part which let's you do a basic tcp communication:
+  streaming output bytes to the socket (and does associated bookkeeping
+  of buffers and queues) and provides input from the socket via a notification
+  (e.g., by calling a callback).
+
+* `opio::proto_entry`: The second part handles the protocol implementation:
+    common protocol handling routines and generating necessary protocol-biassed code.
+
+Here is the high-level overview of opio library:
+
+![Highlevel overview](/docs/opio_short_diagram.svg "opio highlevel high-level overview").
+
 # Build
 
 ## Linux (verified on Ubuntu)
 
-### Prepare Python environment
+### Prepare Python Environment
 
 Make sure you have a python `protobuf` package with matching major version:
 
@@ -48,3 +86,406 @@ conan install -pr:a ubu-gcc-11-asan --build missing -of _build_asan .
 cmake --build _build_asan -j 6
 ```
 
+# Implementation Details
+
+This section describes the necessary concepts and how they map into implementation.
+Both `opio::net` and `opio::proto_entry` operate with specific concepts described
+in its subsection.
+
+![opio core principles](/docs/opio_diagram.svg "opio detailed diagram").
+
+## `opio::net`
+
+`opio::net` library focuses on solving the following tasks:
+
+* Maintain a queue of outgoing raw bytes and write to the socket
+  following the order they were scheduled.
+
+* Continuously read from the socket and notify the consumer via a callback.
+
+This library provides three core abstractions to deal with communication via TCP:
+
+* **Connector** (client-role connection factory).
+
+* **Acceptor** (server role connection factory).
+
+* **Connection** - a wrapper around the connected socket itself.
+
+**Connector** and **Acceptor** are helper concepts.
+Their main task is to provide an instance of a connected socket
+(`asio::ip::tcp::socket`); thus, they are completely decoupled
+from the *Connection*.
+
+The core concept of the library is **Connection** which is implemented by
+`opio::net::tcp::connector_t<Traits>`.
+It encapsulates the low-level "socket" (which is a mean of doing IO)
+and provides a simple client API to send buffers and handle incoming data
+(which also comes in a form of buffers). The intended profile of working with a
+connection can be described as _bytes-in/bytes-out_.
+
+It is important to understand that `opio::net::tcp::connector_t`
+is designed to be used as `std::shared_pointer` and it wraps all
+the necessary context for performing IO function.
+**Connection**  runs its operations on `asio::io_context`.
+
+![opio::net core principles](/docs/opio_net_diagram.svg "opio::net diagram").
+
+To handle incoming bytes, the user provides a "consumer",
+which acts as an entry point to whatever processing logic the client wants to perform.
+The input data is fed to the consumer ASAP via the input handler.
+To initiate output client calls a function that schedules sending of some bytes.
+The outgoing data queue is handled in chunks served with a gathering write
+so outgoing data can be stored as separate buffers but a write operation
+would consider `N` buffers at once.
+
+The internal implementation of `opio::net` does its best to optimize sending/receiving,
+allowing various dimensions of customization.
+The implementation of the **Connection** concept suggests several
+customizations through its traits class:
+
+```C++
+struct connection_traits_t{
+    // Type of socket to use.
+    // Usually, it is just `asio::ip::tcp::socket`,
+    // but for tests or benchmarks purposes, it can be some kind of a
+    // mock or a stub.
+    using socket_t = /*...*/;
+
+    // An executor to use when running the internal logic of the connection.
+    // This is usually:
+    //     * `asio::strand< asio_ns::any_io_executor >` for cases
+    //       `asio::io_context` is running on multiple threads)
+    //     * `asio::any_io_executor` for cases `asio::io_context`
+    //       runs on a single thread.
+    using strand_t = /*...*/;
+
+
+    // Logger type to use for internal logging.
+    // The type has a set of requirements, like having a set of functions
+    // that can be called with certain signatures.
+    using logger_t = /*...*/;
+
+    // A type that provides an implementation of statistics counter.
+    // The type is obligated to have a certain API
+    // in order to be used by the library.
+    // See `opio/net/stats.hpp`  for more details.
+    using operation_watchdog_t = /*...*/;
+
+    // A type that provides a buffer abstruction.
+    // The type is obligated to have a certain API
+    // in order to be used by the library.
+    // See `opio/net/buffer.hpp` and `opio/net/heterogeneous_buffer.hpp`
+    // for more details.
+    using buffer_driver_t = /*...*/;
+
+    // A type that provides an implementation of statistics counter.
+    // The type is obligated to have a certain API
+    // in order to be used by the library.
+    // See `opio/net/stats.hpp`  for more details.
+    using stats_driver_t = /*...*/;
+
+    // A function-like type that implements handling for incoming buffers.
+    // The instance of the type must be invokable with
+    // `opio::net::input_ctx_t< Traits >` as a parameter.
+    // Simplest example is
+    // `std::function< void( input_ctx_t<Traits>& ) >`.
+    using input_handler_t = /*...*/;
+};
+
+```
+
+Important properties of `opio::net`:
+
+* It is a mostly headers template-based library with several customization points.
+
+* It supports both [Boost::asio](https://www.boost.org/doc/libs/1_85_0/doc/html/boost_asio.html)
+  and standalone [ASIO](https://think-async.com/Asio/).
+
+* Customizable strand (ASIO synchronization primitive):
+  for single-threaded event-loop and multi-threaded event-loop.
+
+* Control of write operation timeout calculated on configurable
+  expected speed measured in mb/sec.
+
+* It supports standard socket options configuration.
+
+* Customizable inner logging routine (can be adapted for different loggers frameworks).
+
+### `opio::net` Essential Concepts
+
+<table>
+  <tr>
+    <th>Concept</th>
+    <th>Details</th>
+  </tr>
+  <tr>
+    <td><b>Connection</b></td>
+    <td>
+      Stands for a thing that privately runs all handling around the socket
+      to do IO and does bookkeeping like keeping a queue of output buffers,
+      controlling write timeouts, getting timestamps, and dealing with error handling,
+      at the same time, exposing a simple client interface for client
+      "bytes-in/bytes-out" interface.
+      <br/>
+      Associated routines: <code>opio::net::tcp::connection_t&lt;Traits&gt;</code>.
+      <br/>
+      <code>Traits</code> class is intended to customize connection behavior.
+      Also, it is designed to be used as <code>std::shared_pointer</code>
+      hosted context object that runs its operations on <code>asio::io_context</code>.
+    </td>
+  </tr>
+  <tr>
+    <td><b>Buffer_Driver</b></td>
+    <td>
+      An umbrella concept that defines what is <b>Input Buffer</b> and <b>Output Buffer</b>
+      and provides routines to manipulate them. The <b>Connection</b> includes an
+      instance of the <b>Buffer_Driver</b> type as its data member.
+      That allows using stateful kinds of <b>Buffer_Driver</b> implementation
+      (think of implementing reusable buffer's pool mechanics).
+      <br/>
+      Associated routines: <code>opio::net::simple_buffer_driver_t</code>,
+      <code>opio::net::heterogeneous_buffer_driver_t</code>.
+    </td>
+  </tr>
+  <tr>
+    <td><b>Buffer</b></td>
+    <td>
+      This is a subconcept of <b>Buffer_Driver</b>.
+      It stands for a single continuous array of bytes which is identified
+      by pointer and size. The true nature of the buffer is a private knowledge
+      of <b>Buffer_Driver</b>, and <b>Connection</b> does
+      all the necessary manipulations through <b>Buffer_Driver</b>.
+    </td>
+  </tr>
+  <tr>
+    <td><b>Strand</b></td>
+    <td>
+      An executor used for running <b>Connection</b>s operations
+      on <code>asio::io_context</code>.
+      <br/>
+      Associated routines:
+      <br/><code>opio::net::noop_strand_t</code>
+      (an alias for <code>asio::any_io_executor</code>),
+      <br/><code>opio::net::real_strand_t</code> (
+        an alias for <code>asio::strand&lt;asio::any_io_executor&gt;</code>).
+    </td>
+  </tr>
+  <tr>
+    <td><b>Input_Handler</b><br/><b>Consumer</b></td>
+    <td>
+      <b>Consumer</b> is a logic that handles the input bytes from <b>Connection</b>.
+      Connection uses <b>Input_Handler</b> as an entry point to feed consumer with data.
+      <br/>
+      For example:
+<pre lang="C++">
+std::function<
+    void( input_ctx_t<Traits>& )>;
+</pre>
+    </td>
+  </tr>
+  </tr>
+  <tr>
+    <td><b>Traits</b><br/><b>Connection_Traits</b></td>
+    <td>
+      A defined set of types to be used as customizations to construct an eventual
+      type of <b>Connection</b>.
+      <br/>
+      Associated routines: <code>opio::net::default_traits_st_t</code>,
+      <code>opio::net::default_traits_mt_t</code>.
+    </td>
+  </tr>
+  <tr>
+    <td><b>Connector</b></td>
+    <td>
+      An async primitive to create connected instance of
+      <code>asio::ip::tcp::socket</code>.
+      <br/>
+      Associated routines: <code>opio::net::connector_t</code>.
+      <br/>
+      Acts as a factory.
+    </td>
+  </tr>
+  <tr>
+    <td><b>Acceptor</b></td>
+    <td>
+      An async primitive to listen on a given endpoint and
+      feeding instances of connected sockets to a specified callback.
+      <code>asio::ip::tcp::socket</code>.
+      <br/>
+      Associated routines: <code>opio::net::acceptor_t</code>.
+    </td>
+  </tr>
+</table>
+
+## `opio::proto_entry`
+
+This sublibrary is tightly coupled with the protocol approach used in `opio`.
+So first it is necessary to have an understanding of how the protocol works.
+
+Regardless of what the specific set of messages are there in a given protocol,
+we have the following:
+
+* We start from a proto file (or a set of files);
+
+* We have an agreement regarding which messages can travel from the
+  A-side of the communication channel to the B-side and
+  which messages can travel in the opposite direction,
+  and which can travel both ways;
+
+
+As a reference example let's take the following **sample.proto**,
+that contains a set of messages:
+
+![sample.proto](/docs/opio_sample_proto.svg "sample.proto")
+
+To adopt the above set of messages for `opio` we need to label
+messages with tags that indicate IO direction of the message.
+Also each message must have a unique identificator
+(`opio` uses `enum` to achieve it).
+
+
+```protobuf
+// Message direction with respect to server.
+enum ProtoEntryIODirection {
+  PROTO_ENTRY_IO_INCOMING = 0;          // Server <<< Client
+  PROTO_ENTRY_IO_OUTGOING = 1;          // Server >>> Client
+  PROTO_ENTRY_IO_INCOMING_OUTGOING = 2; // Server <=> Client
+}
+
+extend google.protobuf.MessageOptions {
+    ProtoEntryIODirection proto_entry_io_direction = 110001;
+    string                proto_entry_enum_id = 110002;
+}
+```
+
+The above snippet defines new options and `ProtoEntryIODirection` enum
+that defines directions.
+It can be placed into "sample.proto" directly or be extracted
+into separate file. `opio` expects messages subjected to be messages of the protocol
+to be labeled with `proto_entry_io_direction` and `proto_entry_enum_id` options:
+
+```protobuf
+// Enum to uniquely identify messages of the protocol:
+enum MessageType
+{
+    XXX_REQUEST = 1;
+    // ...
+}
+
+//
+message XxxRequest
+{
+    option (proto_entry_io_direction) = PROTO_ENTRY_IO_INCOMING;
+    option (proto_entry_enum_id) = "XXX_REQUEST";
+
+    // fields...
+}
+```
+
+![sample.proto opio labels](/docs/opio_sample_proto_labeled.svg "sample.proto opio labeles")
+
+Protocol specification gives `opio` a model which we it uses to generate
+the necessary boilerplate to handle the mechanics of multiplexing/demultiplexing
+messages.
+
+Having such attributes doesn't affect serialization or
+parsing routines generated by Protobuf and only adds some code to reflection
+routines.
+
+To create a specification in a convenient format (JSON),
+`opio` uses python module generated by Protobuf.
+Knowing protocol details the protocol specific code can be generated.
+(you can see relevant scripting here:
+[run_cheetah.py](./proto_entry/run_cheetah.py)).
+Speaking about implementation
+`opio::proto_entry` takes the protocol specs and generates a set
+of routines necessary to compose a type, and the instance of such type.
+Implementation follows "send by call & receive by invoke" approach.
+To send a message to remote party user calls on of the send-functions provided by entry
+and to receive the message from a remote party user provides a callback object
+capable of receiving incoming (for its role: client or server) messages of the protocol.
+
+
+The code `opio::proto_entry` generates focuses on solving the following tasks:
+
+* Parse the stream of incoming bytes and create meaningful protocol messages and
+  pass them to internal application logic by invoking hook-method
+  of a consumer provided upon creation of the entry.
+
+* Get messages from the application's logic – receive meaningful protocol messages
+  via send API of the entry, serialize them to raw bytes, and send them to the network
+  (via `opio::net`).
+
+![bytes <=> messages](/docs/opio_bytes_messages.svg "bytes-messages-bytes transition")
+
+### `opio::proto_entry` Essential Concepts
+
+<table>
+  <tr>
+    <th>Concept</th>
+    <th>Details</th>
+  </tr>
+  <tr>
+    <td><b>Entry</b></td>
+    <td>
+      It means a type (or an instance of a such type) that abstracts the communication
+      channel that implements a given protocol while giving a user
+      a "send by call & receive by invoke" look&feel.
+      <br/>
+      Associated routines: <code>opio::proto_entry::entry_base_t&lt;Traits&gt;</code>
+      which Contains common routines not biassed to specific protocol.
+      The types (class) of entries generated according to protocol spec are
+      derived from it.
+    </td>
+  </tr>
+  <tr>
+    <td><b>Server_Role</b><br/><b>Client_Role</b></td>
+    <td>
+      This is a side of the protocol communication channel.
+      And that is used when generating the specification.
+      Because the meaning of <code>ProtoEntryIODirection</code> in the concrete
+      <code>*.proto</code>-file are given with respect to Server.
+      But for <b>Client_Role</b> the meaning should be inverted before generating code.
+    </td>
+  </tr>
+  <tr>
+    <td><b>Connection_Strand</b><br/><b>Strand</b></td>
+    <td>
+      <b>Connection_Strand</b> is strand used for underlying <b>Connection</b>
+      (<code>opio::net</code>). While <b>Strand</b> in the context of
+      <code>opio::proto_entry</code> is an executor used to run <b>Entries</b> events
+      (like parsing, heartbeat handling).
+      <br/>
+      Reuses:  <code>opio::net::noop_strand_t</code> and
+      <code>opio::net::real_strand_t</code>
+    </td>
+  </tr>
+  <tr>
+    <td><b>Consumer</b></td>
+    <td>
+      An entity that has a set of
+      <code>on_mesage(message_carrier, client)</code> methods
+      that accept all incoming messages (marked
+      <code>PROTO_ENTRY_IO_INCOMING_OUTGOING</code> or
+      <code>PROTO_ENTRY_IO_INCOMING</code>
+      for server role entries or <code>PROTO_ENTRY_IO_OUTGOING</code>
+      for client role clients).
+    </td>
+  </tr>
+  <tr>
+    <td><b>Traits</b><br/><b>Entry_Traits</b></td>
+    <td>
+      A defined set of types to be used as customizations to construct an eventual type
+      of Entry.
+      <br/>
+      Standard base traits:
+      <code>opio::proto_entry::common_traits_base_t</code>,
+      <code>opio::proto_entry::singlethread_traits_base_t</code>,
+      <code>opio::proto_entry::multithread_traits_base_t</code>
+      (see <a href="proto_entry/include/opio/proto_entry/entry_base.hpp">entry_base.hpp</a>
+      for more details).
+      <br/>
+      See also <b>Traits</b> for <code>opio::net</code>.
+    </td>
+  </tr>
+</table>
