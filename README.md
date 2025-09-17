@@ -2,22 +2,42 @@
 
 Yet another Overengineered Protobuf IO (OPIO).
 
-## What is it?
+# What OPIO is (and isn’t)
 
-The purpose of the `opio` library is to provide means to implement
-a communication (client/server roles) protocol via TCP using
-protobuf as message-serialization framework.
+OPIO is a thin transport + framing layer for Protocol Buffers over TCP
+with an option to attach a custom binary to a message.
+It gives you control over sockets, buffers, and back-pressure
+without forcing an RPC model.
 
-From the user perspective `opio` gives the following:
+It is **not** an RPC framework (like gRPC).
+You define custom protocol in `.proto` for which **OPIO** generates necessary code,
+and wire it to handlers, and decide your own request/response patterns.
 
-* Routines to start a server or establish a client connection.
+## Typical use cases
 
-* To send a message, one calls a member function of an object of a specific type
-  representing an existing connection between this application and some other application.
+* Reasonably low-latency client/server services that speak a compact,
+  binary protocol over TCP.
+* Gateways or bridges that need fine-grained control of read/write paths
+  and buffer management.
+* Systems where you want Protobuf serialization but do **not** want
+  an opinionated RPC stack.
 
-* To receive the message from a remote application, one provides
-  a handler function that gets a message as its parameter and expects this handler
-  to be invoked each time a new message comes.
+## Key capabilities (user-visible)
+
+* **Client/server roles**: start an acceptor (server) or a connector (client)
+  and obtain a live connection.
+* **Traits-based customization**: swap socket/executor types,
+  choose strand model (single vs multi-thread), plug in your logger/stats,
+  and select a buffer driver.
+* **Messages-in / messages-out API**:
+  send a message calling a send function of an entry object and receive
+  incoming message via a callback you porvide.
+* **Attch custom buffer**: `proto_entry` gives an option to atach custom
+  binary when sending a message (thus on receiving message may come with
+  an attached buffer).
+* **ASIO or Boost.Asio**: build against either, with the same higher-level API.
+* **Protobuf integration**: `proto_entry` provides shared handling and
+  generated glue for your `.proto` messages.
 
 # High-level idea
 
@@ -48,7 +68,7 @@ Here is the high-level overview of opio library:
 |---|---|
 | **C++** | 20 |
 | **GCC** | 11.0 |
-| **MSVC** | 19.40 (aka “194\*”) |
+| **MSVC** | 19.30 (aka “193\*”) |
 | **CMake** | 3.21 |
 
 ## Linux (verified on Ubuntu)

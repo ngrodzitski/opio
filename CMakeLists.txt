@@ -52,7 +52,7 @@ elseif (OPIO_ASIO_SOURCE MATCHES "boost")
     set(Boost_USE_STATIC_LIBS ON)
     find_package(Boost REQUIRED)
 else ()
-    message(FATAL_ERROR "OPIO_ASIO_SOURCE ('${OPIO_ASIO_SOURCE}') must be 'standalone', 'boost' or 'boost-mvd-ext'")
+    message(FATAL_ERROR "OPIO_ASIO_SOURCE ('${OPIO_ASIO_SOURCE}') must be 'standalone' or 'boost'")
 endif ()
 
 find_package(json-dto REQUIRED)

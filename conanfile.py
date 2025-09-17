@@ -107,15 +107,17 @@ class OpioOpioConan(ConanFile):
 
     def build_requirements(self):
         if not self._is_package_only():
+            # For examples:
             self.requires("cli11/2.5.0")
+
             self.test_requires("gtest/1.17.0")
 
     def config_options(self):
         if self.settings.os == "Windows":
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
-        minimal_cpp_standard = "17"
+        minimal_cpp_standard = "20"
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = self._compiler_support_lut()
