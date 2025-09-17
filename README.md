@@ -1,11 +1,11 @@
-# opio
+# OPIO — Overengineered Protobuf I/O
 
 Yet another Overengineered Protobuf IO (OPIO).
 
 ## What is it?
 
 The purpose of the `opio` library is to provide means to implement
-a communication (client-/server- roles) protocol via tcp using
+a communication (client/server roles) protocol via TCP using
 protobuf as message-serialization framework.
 
 From the user perspective `opio` gives the following:
@@ -23,24 +23,33 @@ From the user perspective `opio` gives the following:
 
 Library utilizes [ASIO](https://think-async.com/Asio/)
 ([Boost::asio](https://www.boost.org/doc/libs/1_85_0/doc/html/boost_asio.html))
-as a low-level layer which is responsible for dealing with OS API
-to handle socket programming is provided by the .
+as a low-level layer which deals with OS socket APIs
+to handle socket programming.
 
-On top of it *opio* provide two layers:
+On top of it, **OPIO** provides two layers:
 
-* `opio::net`: a protocol-agnostic part which let's you do a basic tcp communication:
+* `opio::net`: a protocol-agnostic part which lets you do a basic TCP communication:
   streaming output bytes to the socket (and does associated bookkeeping
   of buffers and queues) and provides input from the socket via a notification
   (e.g., by calling a callback).
 
 * `opio::proto_entry`: The second part handles the protocol implementation:
-    common protocol handling routines and generating necessary protocol-biassed code.
+    common protocol handling routines and generating necessary protocol-biased code.
 
 Here is the high-level overview of opio library:
 
 ![Highlevel overview](/docs/opio_short_diagram.svg "opio highlevel high-level overview").
 
 # Build
+
+## Minimum supported toolchain
+
+| Component | Minimum |
+|---|---|
+| **C++** | 20 |
+| **GCC** | 11.0 |
+| **MSVC** | 19.40 (aka “194\*”) |
+| **CMake** | 3.21 |
 
 ## Linux (verified on Ubuntu)
 
@@ -49,7 +58,7 @@ Here is the high-level overview of opio library:
 Make sure you have a python `protobuf` package with matching major version:
 
 ```bash
-pip install "protobuf>=6,<7
+pip install "protobuf>=6,<7"
 ```
 
 If the package is not available you can use `venv`:
@@ -82,7 +91,7 @@ cmake --build _build_release -j 6
 
 # ASAN:
 conan install -pr:a ubu-gcc-11-asan --build missing -of _build_asan .
-( source ./_build_asan/conanbuild.sh && cmake -B_build_asan . -DCMAKE_PREFIX_PATH=/home/ngrodzitski/qt673ASAN -DCMAKE_TOOLCHAIN_FILE=_build_asan/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo )
+( source ./_build_asan/conanbuild.sh && cmake -B_build_asan . -DCMAKE_TOOLCHAIN_FILE=_build_asan/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo )
 cmake --build _build_asan -j 6
 ```
 
@@ -117,14 +126,14 @@ Their main task is to provide an instance of a connected socket
 from the *Connection*.
 
 The core concept of the library is **Connection** which is implemented by
-`opio::net::tcp::connector_t<Traits>`.
-It encapsulates the low-level "socket" (which is a mean of doing IO)
+`opio::net::tcp::connection_t<Traits>`.
+It encapsulates the low-level "socket" (which is a means of doing IO)
 and provides a simple client API to send buffers and handle incoming data
 (which also comes in a form of buffers). The intended profile of working with a
 connection can be described as _bytes-in/bytes-out_.
 
 It is important to understand that `opio::net::tcp::connector_t`
-is designed to be used as `std::shared_pointer` and it wraps all
+is designed to be used as `std::shared_ptr` and it wraps all
 the necessary context for performing IO function.
 **Connection**  runs its operations on `asio::io_context`.
 
@@ -171,7 +180,7 @@ struct connection_traits_t{
     // See `opio/net/stats.hpp`  for more details.
     using operation_watchdog_t = /*...*/;
 
-    // A type that provides a buffer abstruction.
+    // A type that provides a buffer abstraction.
     // The type is obligated to have a certain API
     // in order to be used by the library.
     // See `opio/net/buffer.hpp` and `opio/net/heterogeneous_buffer.hpp`
@@ -196,7 +205,7 @@ struct connection_traits_t{
 
 Important properties of `opio::net`:
 
-* It is a mostly headers template-based library with several customization points.
+* It is mostly header-only, template-based library with several customization points.
 
 * It supports both [Boost::asio](https://www.boost.org/doc/libs/1_85_0/doc/html/boost_asio.html)
   and standalone [ASIO](https://think-async.com/Asio/).
@@ -205,7 +214,7 @@ Important properties of `opio::net`:
   for single-threaded event-loop and multi-threaded event-loop.
 
 * Control of write operation timeout calculated on configurable
-  expected speed measured in mb/sec.
+  expected speed measured in Mb/sec.
 
 * It supports standard socket options configuration.
 
@@ -230,7 +239,7 @@ Important properties of `opio::net`:
       Associated routines: <code>opio::net::tcp::connection_t&lt;Traits&gt;</code>.
       <br/>
       <code>Traits</code> class is intended to customize connection behavior.
-      Also, it is designed to be used as <code>std::shared_pointer</code>
+      Also, it is designed to be used as <code>std::shared_ptr</code>
       hosted context object that runs its operations on <code>asio::io_context</code>.
     </td>
   </tr>
@@ -260,7 +269,7 @@ Important properties of `opio::net`:
   <tr>
     <td><b>Strand</b></td>
     <td>
-      An executor used for running <b>Connection</b>s operations
+      An executor used for running <b>Connection's</b> operations
       on <code>asio::io_context</code>.
       <br/>
       Associated routines:
@@ -271,7 +280,7 @@ Important properties of `opio::net`:
     </td>
   </tr>
   <tr>
-    <td><b>Input_Handler</b><br/><b>Consumer</b></td>
+    <td><b>Input_Handler</b><br/>aka <b>Consumer</b></td>
     <td>
       <b>Consumer</b> is a logic that handles the input bytes from <b>Connection</b>.
       Connection uses <b>Input_Handler</b> as an entry point to feed consumer with data.
@@ -433,7 +442,7 @@ The code `opio::proto_entry` generates focuses on solving the following tasks:
       a "send by call & receive by invoke" look&feel.
       <br/>
       Associated routines: <code>opio::proto_entry::entry_base_t&lt;Traits&gt;</code>
-      which Contains common routines not biassed to specific protocol.
+      which Contains common routines not biased to specific protocol.
       The types (class) of entries generated according to protocol spec are
       derived from it.
     </td>
