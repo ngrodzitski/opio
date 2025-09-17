@@ -1,5 +1,5 @@
 # Root CMake for opio project.
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21)
 
 set(OPIO_PROJECT_NAME opio)
 
