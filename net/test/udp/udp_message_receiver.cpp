@@ -15,7 +15,8 @@ using namespace ::opio::test_utils;  // NOLINT
 TEST( OpioNet, UdpMessageReceiver )
 {
     using msg_receiver_t =
-        udp_message_receiver_t< std::function< void( udp_raw_message_t ) > >;
+        udp_message_receiver_t< std::function< void( udp_raw_message_t ) >,
+                                opio::logger::logger_t >;
 
     asio_ns::io_context ioctx;
 

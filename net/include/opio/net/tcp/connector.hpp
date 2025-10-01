@@ -7,7 +7,7 @@
 #pragma once
 
 #include <opio/net/asio_include.hpp>
-#include <opio/logger/log.hpp>
+#include <opio/log.hpp>
 #include <opio/net/tcp/utils.hpp>
 
 namespace opio::net::tcp
@@ -186,7 +186,7 @@ private:
     asio_ns::ip::tcp::socket m_socket;
 
     const socket_options_cfg_t m_socket_options_cfg;
-    Logger m_logger;
+    [[no_unique_address]] Logger m_logger;
     on_connection_cb_t m_on_connection_cb;
 };
 

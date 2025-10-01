@@ -6,8 +6,9 @@
 
 #include <thread>
 
+#include <opio/log.hpp>
+
 #include <opio/net/asio_include.hpp>
-#include <opio/logger/log.hpp>
 
 namespace opio::net
 {
@@ -25,12 +26,13 @@ namespace opio::net
  * synchronized) context. Which effectively means calling it's member function is
  * not therad safe.
  */
+template < typename Logger >
 class asio_thread_t
 {
 public:
     inline static constexpr int concurrency_hint_1 = 1;
 
-    asio_thread_t( bool busy_wait, logger::logger_t logger )
+    asio_thread_t( bool busy_wait, Logger logger )
         : m_ioctx{ concurrency_hint_1 }
         , m_busy_wait{ busy_wait }
         , m_logger{ std::move( logger ) }
@@ -167,7 +169,7 @@ public:
 private:
     net::asio_ns::io_context m_ioctx;
     const bool m_busy_wait;
-    logger::logger_t m_logger;
+    [[no_unique_address]] Logger m_logger;
 
     std::unique_ptr< std::thread > m_thread;
 };

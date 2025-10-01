@@ -9,7 +9,7 @@
 #include <opio/binary_view_fmt.hpp>
 #include <opio/exception.hpp>
 
-#include <opio/logger/log.hpp>
+#include <opio/log.hpp>
 
 #include <opio/net/udp/udp_message_receiver_fwd.hpp>
 
@@ -33,21 +33,22 @@ namespace opio::net::udp
  * using msg_receiver_t = feed::udp_message_receiver_t< msg_handler_t >;
  * @endcode
  */
-template < typename Message_Handler >
+template < typename Message_Handler, typename Logger >
 class udp_message_receiver_t
     : public std::enable_shared_from_this<
-          udp_message_receiver_t< Message_Handler > >
+          udp_message_receiver_t< Message_Handler, Logger > >
 {
 public:
     using message_handler_t = Message_Handler;
-    using self_t            = udp_message_receiver_t< message_handler_t >;
-    using sptr_t            = std::shared_ptr< self_t >;
+    using logger_t          = Logger;
+    using self_t = udp_message_receiver_t< message_handler_t, logger_t >;
+    using sptr_t = std::shared_ptr< self_t >;
 
     explicit udp_message_receiver_t( asio_ns::io_context & ioctx,
                                      const std::string & device_iface,
                                      asio_ns::ip::address multicast_address,
                                      std::uint16_t multicast_port,
-                                     logger::logger_t logger,
+                                     Logger logger,
                                      message_handler_t message_handler )
         : m_ioctx{ ioctx }
         , m_socket{ m_ioctx.get_executor() }
@@ -233,7 +234,7 @@ private:
     asio_ns::io_context & m_ioctx;
     asio_ns::ip::udp::socket m_socket;
 
-    [[no_unique_address]] logger::logger_t m_logger;
+    [[no_unique_address]] logger_t m_logger;
     message_handler_t m_message_handler{};
 
     // A placeholder variable for async receive operations.
