@@ -107,11 +107,8 @@ public:
                     m_ioctx.run_for(
                         std::chrono::seconds( gracefull_finish_timeout ) );
 
-                    m_logger.trace( OPIO_SRC_LOCATION, [ & ]( auto out ) {
-                        format_to( out,
-                                   "io context stopped completely",
-                                   gracefull_finish_timeout );
-                    } );
+                    m_logger.trace( OPIO_SRC_LOCATION,
+                                    "io context stopped completely" );
                 }
                 catch( const std::exception & ex )
                 {
