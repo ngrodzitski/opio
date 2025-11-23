@@ -25,7 +25,7 @@ TEST( OpioNet, UdpMessageReceiver )
     logger.debug( OPIO_SRC_LOCATION, "Creating msg_receiver_t" );
 
     const asio_ns::ip::udp::endpoint multicast_ep{
-        asio::ip::make_address( "224.0.131.132" ), 30001
+        asio_ns::ip::make_address( "224.0.131.132" ), 30001
     };
 
     std::vector< std::string > received_messages;

@@ -80,7 +80,7 @@ public:
  * @brief Get an instance of error category.
  * @return A reference to a "global" instance of error category.
  */
-inline const auto & error_category()
+inline const error_category_base_t & error_category()
 {
     static error_category_t instance;
     return instance;

@@ -172,7 +172,7 @@ private:
             } );
     }
 
-    void handle_received( std::error_code ec, std::size_t length )
+    void handle_received( asio_ns::error_code ec, std::size_t length )
     {
         while( true )
         {
@@ -222,7 +222,7 @@ private:
                 asio_ns::socket_base::message_flags( 0 ),
                 ec );
 
-            if( ec == asio::error::would_block )
+            if( error_is_would_block( ec ) )
             {
                 break;
             }

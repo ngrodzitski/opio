@@ -75,7 +75,7 @@ if (OPIO_ASIO_SOURCE MATCHES "standalone")
     target_link_libraries(${TARGET_PROJECT} PUBLIC asio::asio)
 else ()
     target_link_libraries(${TARGET_PROJECT} PUBLIC Boost::headers)
-    target_compile_definitions(${TARGET_PROJECT} INTERFACE OPIO_USE_BOOST_ASIO)
+    target_compile_definitions(${TARGET_PROJECT} PUBLIC OPIO_USE_BOOST_ASIO)
 endif ()
 
 # Set dependencies here:

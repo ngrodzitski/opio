@@ -88,7 +88,7 @@ class OpioOpioConan(ConanFile):
         if self.options.asio == "standalone":
             return "asio/1.36.0"
         else:
-            asio_ref = "boost/1.83.0"
+            asio_ref = "boost/1.89.0"
 
         return asio_ref
 

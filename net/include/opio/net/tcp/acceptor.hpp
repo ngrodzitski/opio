@@ -23,7 +23,7 @@ using on_accept_cb_t = std::function< void( asio_ns::ip::tcp::socket ) >;
 /**
  * @brief A CB type to handle acceptor open(), close() events.
  */
-using on_openclose_cb_t = std::function< void( const std::error_code & ) >;
+using on_openclose_cb_t = std::function< void( const asio_ns::error_code & ) >;
 
 //
 // acceptor_t
@@ -129,7 +129,7 @@ private:
      * @note CB parameter is received by values, which is a deliberate choice,
      *       that also helps us to make sure we call the callback only once.
      */
-    void call_openclose_cb( on_openclose_cb_t cb, const std::error_code & ec )
+    void call_openclose_cb( on_openclose_cb_t cb, const asio_ns::error_code & ec )
     {
         try
         {

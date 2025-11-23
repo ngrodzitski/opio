@@ -96,6 +96,9 @@ pip install "protobuf>=6,<7" Cheetah3 legacy-cgi
 ### Build the project
 
 ```bash
+# ============================================
+# Standalone asio
+# ============================================
 
 # Debug
 conan install -pr:a ubu-gcc-11 -s:a build_type=Debug --build missing -of _build .
@@ -113,6 +116,13 @@ cmake --build _build_release -j 6
 conan install -pr:a ubu-gcc-11-asan --build missing -of _build_asan .
 ( source ./_build_asan/conanbuild.sh && cmake -B_build_asan . -DCMAKE_TOOLCHAIN_FILE=_build_asan/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo )
 cmake --build _build_asan -j 6
+
+# ============================================
+# Boost asio
+# ============================================
+conan install -pr:a ubu-gcc-11 -s:a build_type=Debug --build missing -o opio/*:asio=boost -o boost/*:header_only=True -of _build_boost .
+( source ./_build_boost/conanbuild.sh && cmake -B_build_boost . -DCMAKE_TOOLCHAIN_FILE=_build_boost/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug -DOPIO_ASIO_SOURCE=boost)
+cmake --build _build_boost -j 6
 ```
 
 # Implementation Details
