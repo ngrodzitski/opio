@@ -58,13 +58,13 @@ std::uint16_t connect_pair( opio::net::asio_ns::io_context & ioctx,
 
 std::uint16_t make_random_port_value()
 {
-    std::uint16_t res = 20'000;
+    std::uint16_t res = 35'000;
 
     res += ( std::rand()
              + std::chrono::duration_cast< std::chrono::microseconds >(
                    std::chrono::steady_clock::now().time_since_epoch() )
                    .count() )
-           % 42'000;
+           % 20'000;
 
     return res;
 }

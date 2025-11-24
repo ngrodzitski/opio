@@ -15,7 +15,7 @@ TEST( OpioNetTcp, ConnectorOk )  // NOLINT
 {
     asio_ns::io_context ioctx( 1 );
     asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
-                                   2999 };
+                                   12999 };
     asio_ns::ip::tcp::acceptor acceptor{ ioctx, ep };
 
     bool accept_happened  = false;
@@ -34,7 +34,7 @@ TEST( OpioNetTcp, ConnectorOk )  // NOLINT
 
     async_connect( ioctx.get_executor(),
                    "localhost",
-                   2999,
+                   12999,
                    make_test_logger( "connector" ),
                    [ & ]( const auto & ec, auto socket ) {
                        connect_happened = true;
@@ -50,7 +50,7 @@ TEST( OpioNetTcp, ConnectorSocketOptions )  // NOLINT
 {
     asio_ns::io_context ioctx( 1 );
     asio_ns::ip::tcp::endpoint ep{ asio_ns::ip::make_address( "127.0.0.1" ),
-                                   2999 };
+                                   21999 };
     asio_ns::ip::tcp::acceptor acceptor{ ioctx, ep };
 
     bool accept_happened  = false;
@@ -72,7 +72,7 @@ TEST( OpioNetTcp, ConnectorSocketOptions )  // NOLINT
 
     async_connect(
         ioctx.get_executor(),
-        tcp_resolver_query_t{ asio_ns::ip::tcp::v4(), "localhost", "2999" },
+        tcp_resolver_query_t{ asio_ns::ip::tcp::v4(), "localhost", "21999" },
         socket_options_cfg,
         make_test_logger( "connector" ),
         [ & ]( const auto & ec, auto socket ) {

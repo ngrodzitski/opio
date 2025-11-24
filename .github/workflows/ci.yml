@@ -5,7 +5,7 @@ name: CI
 
 on:
   push:
-    branches: ["main", "developmnt"]
+    branches: ["main", "development"]
   pull_request:
 
 jobs:
@@ -29,11 +29,17 @@ jobs:
         with:
           submodules: 'true'
 
+      - name: Prepare env (for clang)
+        shell: bash
+        if: matrix.conan_profile == 'ubu-clang-18'
+        run: |
+          sudo apt-get -qy install \
+            libc++-18-dev libc++abi-18-dev llvm-18
+
       - name: Prepare env
         shell: bash
         run: |
-          sudo apt-get -qy install \
-          pip install --user conan==2.* conan-package-tools "protobuf>=6,<7" Cheetah3 legacy-cgi
+          pip install --user conan==2.* "protobuf>=6,<7" Cheetah3 legacy-cgi
           conan profile detect
           conan config install . -sf conan_profiles -tf profiles
 
@@ -66,7 +72,8 @@ jobs:
           cmake -B_build . \
             -DCMAKE_TOOLCHAIN_FILE=_build/conan_toolchain.cmake \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DOPIO_ASIO_SOURCE=${{ matrix.asio_source }}
+            -DOPIO_ASIO_SOURCE=${{ matrix.asio_source }} \
+            -DOPIO_TEST_PREFIX=${{ matrix.build_type }}_${{ matrix.asio_source }}_${{ matrix.conan_profile }}_
 
       - name: Cmake build
         shell: bash
@@ -76,4 +83,4 @@ jobs:
       - name: Run ctest
         shell: bash
         run: |
-          ctest -T test --test-dir _build
+          ctest -T test --timeout 60 --output-on-failure --test-dir _build

@@ -65,13 +65,16 @@ public:
 
     void connect()
     {
-        m_resolver.async_resolve( m_query.host_name(),
-                                  m_query.service_name(),
-                                  [ self = this->shared_from_this() ](
-                                      const auto & ec, auto resolve_res ) {
-                                      self->handle_resolve(
-                                          ec, std::move( resolve_res ) );
-                                  } );
+        m_resolver.async_resolve(
+#if OPIO_ASIO_VERSION >= 103300  // Asio >= 1.33.0
+            m_query.protocol,
+#endif
+            m_query.host_name(),
+            m_query.service_name(),
+            [ self = this->shared_from_this() ]( const auto & ec,
+                                                 auto resolve_res ) {
+                self->handle_resolve( ec, std::move( resolve_res ) );
+            } );
     }
 
     /**
