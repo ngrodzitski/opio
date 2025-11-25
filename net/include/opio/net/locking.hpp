@@ -51,10 +51,10 @@ struct noop_locking_t
 };
 
 //
-// mutext_locking_t
+// mutex_locking_t
 //
 
-struct mutext_locking_t
+struct mutex_locking_t
 {
     static constexpr bool noop_lock = false;
 

@@ -3328,7 +3328,7 @@ struct default_traits_st_t
 
 #if defined( OPIO_NET_FORCE_DEFAULT_LOCKING_WITH_MUTEX )
     // This makes it possible:
-    using locking_t = mutext_locking_t;
+    using locking_t = mutex_locking_t;
 #else   // defined( OPIO_NET_FORCE_DEFAULT_LOCKING_WITH_MUTEX )
     using locking_t = noop_locking_t;
 #endif  // defined( OPIO_NET_FORCE_DEFAULT_LOCKING_WITH_MUTEX )
