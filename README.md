@@ -31,8 +31,8 @@ and wire it to handlers, and decide your own request/response patterns.
   and select a buffer driver.
 * **Messages-in / messages-out API**:
   send a message calling a send function of an entry object and receive
-  incoming message via a callback you porvide.
-* **Attch custom buffer**: `proto_entry` gives an option to atach custom
+  incoming message via a callback you provide.
+* **Attach custom buffer**: `proto_entry` gives an option to atach custom
   binary when sending a message (thus on receiving message may come with
   an attached buffer).
 * **ASIO or Boost.Asio**: build against either, with the same higher-level API.
