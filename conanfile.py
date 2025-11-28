@@ -15,26 +15,31 @@ class OpioOpioConan(ConanFile):
             self.recipe_folder,
             "opio/include/opio/version.hpp"
         )
-        with open(version_file_path, 'r') as file:
-            content = file.read()
-            major_match = re.search(r'VERSION_MAJOR\s+(\d+)ull', content)
-            minor_match = re.search(r'VERSION_MINOR\s+(\d+)ull', content)
-            patch_match = re.search(r'VERSION_PATCH\s+(\d+)ull', content)
+        try:
+            with open(version_file_path, 'r') as file:
+                content = file.read()
+                major_match = re.search(r'VERSION_MAJOR\s+(\d+)ull', content)
+                minor_match = re.search(r'VERSION_MINOR\s+(\d+)ull', content)
+                patch_match = re.search(r'VERSION_PATCH\s+(\d+)ull', content)
 
-            if major_match and minor_match and patch_match:
-                major = int(major_match.group(1))
-                minor = int(minor_match.group(1))
-                patch = int(patch_match.group(1))
+                if major_match and minor_match and patch_match:
+                    major = int(major_match.group(1))
+                    minor = int(minor_match.group(1))
+                    patch = int(patch_match.group(1))
 
-                self.version = f"{major}.{minor}.{patch}"
-            else:
-                raise ValueError(f"cannot detect version from {version_file_path}")
+                    self.version = f"{major}.{minor}.{patch}"
+                else:
+                    raise ValueError(f"Cannot detect version from {version_file_path}")
+        except FileNotFoundError:
+            raise ValueError(f"Version file not found: {version_file_path}")
 
     options = {
         "fPIC": [True, False],
+        "asio": ["boost", "standalone"],
     }
     default_options = {
         "fPIC": True,
+        "asio": "standalone",
     }
 
     name = "opio"
@@ -59,8 +64,6 @@ class OpioOpioConan(ConanFile):
     no_copy_source = False
     build_policy = "missing"
 
-    options = {"asio": ["boost", "standalone"]}
-    default_options = {"asio": "standalone"}
 
     def _compiler_support_lut(self):
         return {
