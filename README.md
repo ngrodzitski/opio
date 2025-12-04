@@ -33,7 +33,7 @@ and wire it to handlers, and decide your own request/response patterns.
   send a message calling a send function of an entry object and receive
   incoming message via a callback you provide.
 * **Attach custom buffer**: `proto_entry` gives an option to atach custom
-  binary when sending a message (thus on receiving message may come with
+  binary when sending a message (thus on receiving, a message may come with
   an attached buffer).
 * **ASIO or Boost.Asio**: build against either, with the same higher-level API.
 * **Protobuf integration**: `proto_entry` provides shared handling and
@@ -423,7 +423,7 @@ message XxxRequest
 
 ![sample.proto opio labels](/docs/opio_sample_proto_labeled.svg "sample.proto opio labeles")
 
-Protocol specification gives `opio` a model which we it uses to generate
+Protocol specification gives `opio` a model which it uses to generate
 the necessary boilerplate to handle the mechanics of multiplexing/demultiplexing
 messages.
 
@@ -440,7 +440,7 @@ Speaking about implementation
 `opio::proto_entry` takes the protocol specs and generates a set
 of routines necessary to compose a type, and the instance of such type.
 Implementation follows "send by call & receive by invoke" approach.
-To send a message to remote party user calls on of the send-functions provided by entry
+To send a message to remote party user calls one of the send-functions provided by entry
 and to receive the message from a remote party user provides a callback object
 capable of receiving incoming (for its role: client or server) messages of the protocol.
 
